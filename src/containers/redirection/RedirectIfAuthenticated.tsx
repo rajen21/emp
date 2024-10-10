@@ -5,7 +5,7 @@ const RedirectIfAuthenticated: React.FC<RouteProps> = ({ element: Component }) =
   const token = localStorage.getItem("emp-token");
 
   if (token) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{Component}</>;

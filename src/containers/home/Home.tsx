@@ -23,6 +23,6 @@ function Home() {
 }
 
 export default { 
-  path: "/home", 
+  path: "/", 
   element: <ProtectedRoute element={<Home />} />,
 };

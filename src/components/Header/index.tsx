@@ -31,10 +31,10 @@ const Header: React.FC = () => {
     <header className="bg-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
         <div className="text-2xl font-bold">
-          <NavLink to="/home" className="hover:text-gray-400">Employee Manangement</NavLink>
+          <NavLink to="/" className="hover:text-gray-400">Employee Manangement</NavLink>
         </div>
         <nav className="hidden md:flex space-x-4">
-          <NavLink to="/home" className="hover:text-gray-400">Home</NavLink>
+          <NavLink to="/" className="hover:text-gray-400">Home</NavLink>
           <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
           <NavLink to="/employees" className="hover:text-gray-400">Employees</NavLink>
           <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -80,7 +80,7 @@ const Header: React.FC = () => {
       {isOpen && (
         <nav className="md:hidden bg-gray-700">
           <div className="px-4 py-2">
-            <NavLink to="/home" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Home</NavLink>
+            <NavLink to="/" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Home</NavLink>
             <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
             <NavLink to="/employees" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
           </div>

@@ -41,10 +41,9 @@ const LoginForm: React.FC = () => {
 
       const response = await EMSApi.auth.login(cred);
       const data = _get(response, "data", null);
-console.log("aaaa", data);
 
-      if (_get(data, "data.statusCode", 0) === 200 && _get(data, "data.success", false)) {
-        navigate("/home");
+      if (_get(data, "statusCode", 0) === 200 && _get(data, "success", false)) {
+        navigate("/");
       } else if (_get(data, "statusCode") >= 400 && !_get(data, "success")){
         triggerToast("error", _get(data,"message"));
       }

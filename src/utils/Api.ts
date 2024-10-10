@@ -39,11 +39,13 @@ axiosInstance.interceptors.response.use(
 );
 
 export const apiDomain = 'http://localhost:8000/api/v1';
+export {axiosInstance};
 
 const loginURL = `${apiDomain}/auth/login`;
 const logOut = `${apiDomain}/auth/logout`;
 const registerUser = `${apiDomain}/emp/register-user`;
 const getUser = `${apiDomain}/emp/get-user-details`;
+const workspace = `${apiDomain}/workspace/get-workspace`;
 
 const EMSApi = {
   auth: {
@@ -55,7 +57,10 @@ const EMSApi = {
   },
   user: {
     getUserDetails: () => axiosInstance.get(getUser).then(res=> res),
-  }
+  },
+  workspace: {
+    get: () => axiosInstance.get(workspace).then(res => res),
+  },
 };
 
 export default EMSApi;
