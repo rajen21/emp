@@ -41,7 +41,10 @@ const initialState = {
     workspacedata: null,
     isLoading: false,
     error: null,
-  } as WorkspaceState
+  } as WorkspaceState,
+  workspaceAdmin: {
+    
+  }
 };
 
 export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: string }>("home/fetchUser", async () => {
@@ -51,9 +54,23 @@ export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: stri
 
 export const getWorkspaces = createAsyncThunk<Workspaces, void, { rejectValue: string }>("home/getWorkspaces", async () => {
   const res = await EMSApi.workspace.get();
+  console.log("ccccc", res);
   
   return _get(res,"data.data") as any;
-})
+});
+
+export const getWorkspaceAdmins = createAsyncThunk<Workspaces, void, { rejectValue: string }>("home/getWorkspaces", async (qr, state) => {
+  console.log("Aaaa", state);
+  
+  const query = {
+    role: "workspace_admin",
+    // superAdminId: 
+  }
+  const res = await EMSApi.user.getUsers();
+  console.log("ccccc", res);
+  
+  return _get(res,"data.data") as any;
+});
 
 const itemsSlice = createSlice({
   name: 'home',
@@ -82,10 +99,21 @@ const itemsSlice = createSlice({
       state.workspaces.isLoading = false;
       state.workspaces.error = action.payload as any;
     });
+    builder.addCase(getWorkspaceAdmins.pending, (state) => {
+      state. = true;
+    });
+    builder.addCase(getWorkspaceAdmins.fulfilled, (state, action) => {
+      state.workspaces.isLoading = false;
+      state.workspaces.workspacedata = action.payload;
+    });
+    builder.addCase(getWorkspaceAdmins.rejected, (state,action) => {
+      state.workspaces.isLoading = false;
+      state.workspaces.error = action.payload as any;
+    });
   }
 });
 
 export const homeState = (state: RootState) => _get(state, "homeReducer.user");
-export const workspaceState = (state: RootState) => _get(state, "homeReducer");
+export const workspaceState = (state: RootState) => _get(state, "homeReducer.workspaces");
 
 export default itemsSlice.reducer;

@@ -3,7 +3,7 @@ import { Formik, Field, Form } from 'formik';
 import ProtectedRoute from '../redirection/ProtectedRoute';
 import { apiDomain, axiosInstance } from '../../utils/Api';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser, homeState } from './workspaceSliice';
+import { fetchUser, getWorkspaces, homeState, workspaceState } from './workspaceSliice';
 import { AppDispatch } from '../../store/store';
 
 interface FormValues {
@@ -46,8 +46,12 @@ interface UserData {
 const CreateWorkspace = () => {
   const dispatch:AppDispatch = useDispatch();
   const {isLoading, data, error}: UserData = useSelector(homeState);
+  const dd = useSelector(workspaceState);
+  console.log("ddd", dd);
+  
   useEffect(() => {
     dispatch(fetchUser());
+    dispatch(getWorkspaces());
   }, []);
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
@@ -69,10 +73,8 @@ const CreateWorkspace = () => {
           formdata.append('email', values.email);
           formdata.append('phone', values.phone);
           formdata.append('address', values.address);
-          formdata.append('owner', values.owner);
-          formdata.append('admin', data?.superAdminId || "");
-          console.log("checkk", formdata.get("admin"));
-          
+          formdata.append('owner', "6706d3944ec2e8566006c493");
+          formdata.append('admin', data?._id || "");
 
           if (values.logo) {
             formdata.append('logo', values.logo);
@@ -81,9 +83,9 @@ const CreateWorkspace = () => {
         try {
           
           const res = await axiosInstance.post(`${apiDomain}/workspace/create-workspace`, formdata, {
-            // headers: {
-            //   'Content-Type': 'multipart/form-data'
-            // }
+            headers: {
+              'Content-Type': 'application/json'
+            }
           });
           console.log("dddd", res);
           

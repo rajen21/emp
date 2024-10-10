@@ -46,6 +46,7 @@ const logOut = `${apiDomain}/auth/logout`;
 const registerUser = `${apiDomain}/emp/register-user`;
 const getUser = `${apiDomain}/emp/get-user-details`;
 const workspace = `${apiDomain}/workspace/get-workspace`;
+const users = `${apiDomain}/workspace/get-users`;
 
 const EMSApi = {
   auth: {
@@ -57,6 +58,7 @@ const EMSApi = {
   },
   user: {
     getUserDetails: () => axiosInstance.get(getUser).then(res=> res),
+    getUsers: () => axiosInstance.get(users).then(res=> res),
   },
   workspace: {
     get: () => axiosInstance.get(workspace).then(res => res),
