@@ -1,21 +1,25 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Formik, Field, Form } from 'formik';
 import ProtectedRoute from '../redirection/ProtectedRoute';
 import { apiDomain, axiosInstance } from '../../utils/Api';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser, getWorkspaces, homeState, workspaceState } from './workspaceSliice';
+import { fetchUser, getWorkspaceAdmins,workspaceState } from './workspaceSliice';
 import { AppDispatch } from '../../store/store';
+import _get from "lodash/get";
+import _map from "lodash/map";
+import Dropdown from '../../components/dropdowns/index';
+import Toast from '../../components/Toast';
 
-interface FormValues {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  logo: File | null;
-  owner: string;
-  admin: string;
-  isActive: boolean;
-}
+// interface FormValues {
+//   name: string;
+//   email: string;
+//   phone: string;
+//   address: string;
+//   logo: File | null;
+//   owner: string;
+//   admin: string;
+//   isActive: boolean;
+// }
 
 interface User {
   _id: string;
@@ -35,24 +39,25 @@ interface User {
   workSpaceAdminId?: string; 
 }
 
-interface UserData {
-  isLoading: boolean;
-  data: User | null;
-  error: string | null;
-}
-
-
-
 const CreateWorkspace = () => {
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
+  const [toastMessage, setToastMessage] = useState('');
   const dispatch:AppDispatch = useDispatch();
-  const {isLoading, data, error}: UserData = useSelector(homeState);
-  const dd = useSelector(workspaceState);
-  console.log("ddd", dd);
+  const workspaceStateData = useSelector(workspaceState);
+  console.log("ddd", workspaceStateData);
+  const OPTIONS = _map(_get(workspaceStateData, "workspaceAdmins.data",[]), (data: User) => ({val: data?._id,label:data.fullname}))
+
+  const triggerToast = (type: 'success' | 'info' | 'error', message: string) => {
+    setToastType(type);
+    setToastMessage(message);
+    setShowToast(true);
+  };
   
   useEffect(() => {
+    dispatch(getWorkspaceAdmins());
     dispatch(fetchUser());
-    dispatch(getWorkspaces());
-  }, []);
+  }, [dispatch]);
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold text-center mb-6">Workspace Form</h1>
@@ -73,8 +78,8 @@ const CreateWorkspace = () => {
           formdata.append('email', values.email);
           formdata.append('phone', values.phone);
           formdata.append('address', values.address);
-          formdata.append('owner', "6706d3944ec2e8566006c493");
-          formdata.append('admin', data?._id || "");
+          formdata.append('owner', values.owner);
+          formdata.append('admin',_get(workspaceStateData, "user.data._id") || "");
 
           if (values.logo) {
             formdata.append('logo', values.logo);
@@ -82,16 +87,13 @@ const CreateWorkspace = () => {
 
         try {
           
-          const res = await axiosInstance.post(`${apiDomain}/workspace/create-workspace`, formdata, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+          const res = await axiosInstance.post(`${apiDomain}/workspace/create-workspace`, formdata);
           console.log("dddd", res);
           
         } catch (error) {
+          const err = error as Error;
           console.error("error", error);
-          
+          triggerToast('error', err.message)
         }
           console.log(formdata);
           setSubmitting(false);
@@ -145,6 +147,10 @@ const CreateWorkspace = () => {
             </div>
 
             <div className="mb-4">
+              <Dropdown label='Workspace Admin' name='owner' options={OPTIONS}/>
+            </div>
+
+            <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="logo">
                 Logo
               </label>
@@ -183,6 +189,7 @@ const CreateWorkspace = () => {
           </Form>
         )}
       </Formik>
+      <Toast type={toastType} message={toastMessage} show={showToast} onClose={() => setShowToast(false)} />
     </div>
   );
 };

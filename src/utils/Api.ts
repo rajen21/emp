@@ -1,8 +1,5 @@
 import axios, {  AxiosRequestConfig, AxiosResponse } from "axios";
 
-import _get from 'lodash/get';
-import _isEqual from 'lodash/isEqual';
-
 import { UserFormData } from "../containers/auth/register/RegisterUser";
 import { LoginCredentials } from "./ApiTypes";
 
@@ -46,7 +43,7 @@ const logOut = `${apiDomain}/auth/logout`;
 const registerUser = `${apiDomain}/emp/register-user`;
 const getUser = `${apiDomain}/emp/get-user-details`;
 const workspace = `${apiDomain}/workspace/get-workspace`;
-const users = `${apiDomain}/workspace/get-users`;
+const users = `${apiDomain}/emp/get-users`;
 
 const EMSApi = {
   auth: {
@@ -58,7 +55,7 @@ const EMSApi = {
   },
   user: {
     getUserDetails: () => axiosInstance.get(getUser).then(res=> res),
-    getUsers: () => axiosInstance.get(users).then(res=> res),
+    getUsers: (config: any) => axiosInstance.get(users, config).then(res=> res),
   },
   workspace: {
     get: () => axiosInstance.get(workspace).then(res => res),

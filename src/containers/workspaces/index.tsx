@@ -3,6 +3,7 @@ import ListView from '../../components/List'
 import ProtectedRoute from '../redirection/ProtectedRoute'
 import { getWorkspaces, workspaceState } from './workspaceSliice';
 import { useEffect } from 'react';
+import _get from "lodash/get";
 import { AppDispatch } from '../../store/store';
 
 function Workspace() {
@@ -12,9 +13,10 @@ function Workspace() {
   
   useEffect(() => {
     dispatch(getWorkspaces());
-  }, [])
-  return ("hello"
-    // <ListView items={} onDelete={} key={} />
+  }, []);
+
+  return (
+    <ListView items={_get(data, "workspaces.workspacedata")} />
   )
 }
 

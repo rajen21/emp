@@ -6,73 +6,88 @@ import { RootState } from '../../store/store';
 
 interface UserState {
   isLoading: boolean;
-  data: null | any; 
-  error: null | string;
+  data: UserDetails | UserDetails[] | null; 
+  error: string | undefined;
 }
 
 interface WorkspaceState {
   isLoading: boolean;
-  workspacedata: null | any; 
-  error: null | string;
+  workspacedata: Workspaces[] | null; 
+  error: string | undefined;
 }
 
 interface UserDetails {
-  id: string;
   username: string;
   email: string;
   fullname: string;
-  // Add other user properties as necessary
+  role: string;
+  experience: number;
+  isActive: boolean;
+  profilePhoto?: string;
+  company?: string;
+  address?: string;
+  dob?: string;
+  dept?: string;
+  phone?: string;
+  doj?: string;
+  company_address?: string;
+  workspaceId?: object;
+  superAdminId?: object;
+  workSpaceAdminId?:object;
 }
-interface Workspaces {
-  id: string;
+export interface Workspaces {
+  _id: string;
   name: string;
   email: string;
+  phone: string;
+  address: string;
   logo: string;
-  // Add other user properties as necessary
+  owner: string;  
+  admin: string;  
+  isActive: boolean;
 }
 
 const initialState = {
   user: {
     isLoading: false,
     data: null,
-    error: null,
+    error: undefined,
   } as UserState,
   workspaces: {
     workspacedata: null,
     isLoading: false,
-    error: null,
+    error: undefined,
   } as WorkspaceState,
-  workspaceAdmin: {
-    
-  }
+  workspaceAdmins: {
+    isLoading: false,
+    error: undefined,
+    data: null,
+  } as UserState,
 };
 
 export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: string }>("home/fetchUser", async () => {
   const res = await EMSApi.user.getUserDetails();
-  return _get(res, "data.data") as any;
+  return _get(res, "data.data") as UserDetails;
 });
 
-export const getWorkspaces = createAsyncThunk<Workspaces, void, { rejectValue: string }>("home/getWorkspaces", async () => {
+export const getWorkspaces = createAsyncThunk<Workspaces[], void, { rejectValue: string }>("home/getWorkspaces", async () => {
   const res = await EMSApi.workspace.get();
-  console.log("ccccc", res);
-  
-  return _get(res,"data.data") as any;
+  return _get(res,"data.data") as Workspaces[];
 });
 
-export const getWorkspaceAdmins = createAsyncThunk<Workspaces, void, { rejectValue: string }>("home/getWorkspaces", async (qr, state) => {
-  console.log("Aaaa", state);
-  
+export const getWorkspaceAdmins = createAsyncThunk<UserDetails[], void, { rejectValue: string }>("home/getWorkspaceAdmins", async () => {
   const query = {
-    role: "workspace_admin",
-    // superAdminId: 
+    params: {
+      role: "workspace_admin",
+    }
   }
-  const res = await EMSApi.user.getUsers();
+  const res = await EMSApi.user.getUsers(query);
   console.log("ccccc", res);
   
-  return _get(res,"data.data") as any;
+  return res.data.data.employees as UserDetails[];
 });
 
-const itemsSlice = createSlice({
+const homeSlice = createSlice({
   name: 'home',
   initialState,
   reducers: {},
@@ -100,20 +115,19 @@ const itemsSlice = createSlice({
       state.workspaces.error = action.payload as any;
     });
     builder.addCase(getWorkspaceAdmins.pending, (state) => {
-      state. = true;
+      state.workspaceAdmins.isLoading = true;
     });
     builder.addCase(getWorkspaceAdmins.fulfilled, (state, action) => {
-      state.workspaces.isLoading = false;
-      state.workspaces.workspacedata = action.payload;
+      state.workspaceAdmins.isLoading = false;
+      state.workspaceAdmins.data = action.payload;
     });
     builder.addCase(getWorkspaceAdmins.rejected, (state,action) => {
-      state.workspaces.isLoading = false;
-      state.workspaces.error = action.payload as any;
+      state.workspaceAdmins.isLoading = false;
+      state.workspaceAdmins.error = action.payload as any;
     });
   }
 });
 
-export const homeState = (state: RootState) => _get(state, "homeReducer.user");
-export const workspaceState = (state: RootState) => _get(state, "homeReducer.workspaces");
+export const workspaceState = (state: RootState) => _get(state, "workspaceReducer");
 
-export default itemsSlice.reducer;
+export default homeSlice.reducer;
