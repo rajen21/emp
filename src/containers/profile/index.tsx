@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { AppDispatch } from '../../store/store';
 import { fetchUser, homeState } from '../home/homeSlice';
 import ProtectedRoute from '../redirection/ProtectedRoute';
@@ -9,18 +9,18 @@ interface UserProfile {
   id: string;
   username: string;
   email: string;
-  fullName: string;
+  fullname: string;
   password: string;
   phone: string;
   role: string;
   experience: string;
   profilePhoto: string;
   company: string;
-  dob: string; // Use Date if you want to handle it as a Date object
+  dob: string;
   department: string;
   companyAddress: string;
   address: string;
-  doj: string; // Use Date if you want to handle it as a Date object
+  doj: string;
   isActive: boolean;
 }
 
@@ -36,7 +36,7 @@ const UserProfileComponent: React.FC = () => {
     id: '',
     username: '',
     email: '',
-    fullName: '',
+    fullname: '',
     password: '',
     phone: '',
     role: '',
@@ -58,7 +58,7 @@ const UserProfileComponent: React.FC = () => {
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching user details: {error}</p>;
-console.log(data);
+  console.log("aaa", data);
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
@@ -76,7 +76,6 @@ console.log(data);
                 name="username"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="username" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -86,17 +85,15 @@ console.log(data);
                 name="email"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1" htmlFor="fullName">Full Name</label>
+              <label className="block text-sm font-medium mb-1" htmlFor="fullname">Full Name</label>
               <Field
                 type="text"
-                name="fullName"
+                name="fullname"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="fullName" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -106,7 +103,6 @@ console.log(data);
                 name="password"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -116,7 +112,6 @@ console.log(data);
                 name="phone"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="phone" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -126,7 +121,6 @@ console.log(data);
                 name="role"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="role" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -136,17 +130,15 @@ console.log(data);
                 name="experience"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="experience" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1" htmlFor="profilePhoto">Profile Photo URL</label>
+              <label className="block text-sm font-medium mb-1" htmlFor="profilePhoto">Profile Photo</label>
               <Field
-                type="text"
+                type="file"
                 name="profilePhoto"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="profilePhoto" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -156,7 +148,6 @@ console.log(data);
                 name="company"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="company" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -166,27 +157,24 @@ console.log(data);
                 name="dob"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="dob" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1" htmlFor="department">Department</label>
               <Field
                 type="text"
-                name="department"
+                name="dept"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="department" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1" htmlFor="companyAddress">Company Address</label>
               <Field
                 type="text"
-                name="companyAddress"
+                name="company_address"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="companyAddress" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -196,7 +184,6 @@ console.log(data);
                 name="address"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
             </div>
 
             <div className="mb-4">
@@ -206,16 +193,13 @@ console.log(data);
                 name="doj"
                 className="w-full border border-gray-300 rounded-md p-2"
               />
-              <ErrorMessage name="doj" component="div" className="text-red-500 text-sm" />
             </div>
-
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1" htmlFor="isActive">Is Active</label>
               <Field as="select" name="isActive" className="w-full border border-gray-300 rounded-md p-2">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </Field>
-              <ErrorMessage name="isActive" component="div" className="text-red-500 text-sm" />
             </div>
 
             <button
@@ -232,4 +216,4 @@ console.log(data);
   );
 };
 
-export default {path: "/profile", element: <ProtectedRoute element={<UserProfileComponent />} />};
+export default { path: "/profile", element: <ProtectedRoute element={<UserProfileComponent />} /> };

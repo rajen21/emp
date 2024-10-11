@@ -8,15 +8,15 @@ interface PropsTypes {
   label: string;
   name: string;
   type: string;
-  required: boolean;
+  required?: boolean;
   val?: string;
-  handleBlur: (e: React.FocusEvent<any>) => void;
+  handleBlur?: (e: React.FocusEvent<any>) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 function Input(props: PropsTypes) {
   return (
-    <>
+    <div>
       <label className={props.labelClass} htmlFor={props.htmlfor}>
         {props.label}
       </label>
@@ -29,7 +29,7 @@ function Input(props: PropsTypes) {
         onBlur={props.handleBlur}
         onChange={props.handleChange}
         className={props.classname}
-      /></>
+      /></div>
   )
 }
 

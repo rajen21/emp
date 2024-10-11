@@ -58,7 +58,7 @@ const EMSApi = {
     getUsers: (config: any) => axiosInstance.get(users, config).then(res=> res),
   },
   workspace: {
-    get: () => axiosInstance.get(workspace).then(res => res),
+    get: (config: any) => axiosInstance.get(workspace, config).then(res => res),
   },
 };
 

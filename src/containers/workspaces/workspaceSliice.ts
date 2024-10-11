@@ -70,8 +70,8 @@ export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: stri
   return _get(res, "data.data") as UserDetails;
 });
 
-export const getWorkspaces = createAsyncThunk<Workspaces[], void, { rejectValue: string }>("home/getWorkspaces", async () => {
-  const res = await EMSApi.workspace.get();
+export const getWorkspaces = createAsyncThunk<Workspaces[], object, { rejectValue: string }>("home/getWorkspaces", async (query) => {
+  const res = await EMSApi.workspace.get(query);
   return _get(res,"data.data") as Workspaces[];
 });
 
@@ -82,8 +82,6 @@ export const getWorkspaceAdmins = createAsyncThunk<UserDetails[], void, { reject
     }
   }
   const res = await EMSApi.user.getUsers(query);
-  console.log("ccccc", res);
-  
   return res.data.data.employees as UserDetails[];
 });
 

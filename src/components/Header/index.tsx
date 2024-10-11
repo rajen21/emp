@@ -36,7 +36,7 @@ const Header: React.FC = () => {
         <nav className="hidden md:flex space-x-4">
           <NavLink to="/" className="hover:text-gray-400">Home</NavLink>
           <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
-          <NavLink to="/employees" className="hover:text-gray-400">Employees</NavLink>
+          <NavLink to="/employee-list" className="hover:text-gray-400">Employees</NavLink>
           <div className="relative inline-block text-left" ref={dropdownRef}>
             <div>
               <button
@@ -55,7 +55,6 @@ const Header: React.FC = () => {
               <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                 <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</NavLink>
-                  <NavLink to="/sett" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</NavLink>
                   <NavLink to="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</NavLink>
                 </div>
               </div>
@@ -82,7 +81,7 @@ const Header: React.FC = () => {
           <div className="px-4 py-2">
             <NavLink to="/" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Home</NavLink>
             <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
-            <NavLink to="/employees" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
+            <NavLink to="/employee-list" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
           </div>
         </nav>
       )}

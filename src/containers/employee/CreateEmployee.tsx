@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { Formik } from 'formik';
-
 
 import _isEmpty from "lodash/isEmpty";
 import _get from "lodash/get";
 
-import RedirectIfAuthenticated from '../../redirection/RedirectIfAuthenticated';
-import Toast from '../../../components/Toast';
-import EMSApi from '../../../utils/Api';
-import Loader from '../../../components/Loader';
-import Input from '../../../components/Input/CommonInput';
+import Toast from '../../components/Toast';
+import EMSApi from '../../utils/Api';
+import Loader from '../../components/Loader';
+import Input from '../../components/Input/CommonInput';
 import { useNavigate } from 'react-router-dom';
+import Checkbox from '../../components/Input/Checkbox';
+import Button from '../../components/button';
+import ProtectedRoute from '../redirection/ProtectedRoute';
+
 
 export interface UserFormData {
   username: string;
@@ -24,9 +26,12 @@ export interface UserFormData {
   email: string;
   profilePhoto: File | null;
   doj: string;
+  roll: string,
+  address: string,
+  companyAddress: string,
+  isActive: boolean,
 }
-
-const UserForm: React.FC = () => {
+function EmployeeForm() {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<'success' | 'info' | 'error'>('success');
   const [toastMessage, setToastMessage] = useState('');
@@ -38,22 +43,17 @@ const UserForm: React.FC = () => {
     setShowToast(true);
   };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0] || null;
-  //   setFormData({
-  //     ...formData,
-  //     profilePhoto: file,
-  //   });
-  // };
-
+  const onCancel = () => {
+    navigate("/employee-list");
+  }
 
   return (
     <Formik
-      initialValues={{ username: "", fullname: "", password: "", company: "", dob: "", dept: "", phone: "", experience: "", email: "", profilePhoto: null, doj: "" }}
+      initialValues={{ username: "", fullname: "", password: "", company: "", dob: "", dept: "", phone: "", experience: "", email: "", doj: "", roll: '', address: '', companyAddress: '', isActive: false }}
       validate={values => {
         const usernameRegex = /^[a-zA-Z0-9_]+$/;
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-        const phoneRegex = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
+        const phoneRegex = /^(\+91[-\s]?)?[6-9]\d{9}$/;
         const userDOB = new Date(_get(values, "dob"));
         const today = new Date();
 
@@ -62,7 +62,7 @@ const UserForm: React.FC = () => {
           today.getMonth(),
           today.getDate()
         );
-        let err:string = "";
+        let err: string = "";
         if (values.email.length && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
           err = 'Invalid email address';
         } else if (values.email.length && values.username.length < 3) {
@@ -73,31 +73,31 @@ const UserForm: React.FC = () => {
           err = 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*).';
         } else if (values.dob.length && userDOB > cutoffDate) {
           err = 'User must be at least 18 years old.';
-        } else if (values.phone.length&&!phoneRegex.test(_get(values, "phone"))) {
+        } else if (values.phone.length && !phoneRegex.test(_get(values, "phone"))) {
           err = 'Please enter a valid  phone number.';
         }
-        if (!_isEmpty(err)){
-          triggerToast("error",err);
+        if (!_isEmpty(err)) {
+          triggerToast("error", err);
         }
         return {};
       }}
       onSubmit={async (values, { setSubmitting }) => {
-        try {
-          setSubmitting(true);
-          const data = { ...values, role: "employee", isActive: true };
-          const res = await EMSApi.registerUser.create(data);
-          setSubmitting(false);
-          console.log("checkkk ", res);
-          if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {
-            triggerToast("success", _get(res, "data.message"));
-            setTimeout(() => {
-              navigate("/login");
-            }, 3000);
-          }
-        } catch (err) {
-          console.error("err ", err);
-          setSubmitting(false);
-        }
+        // try {
+        //   setSubmitting(true);
+        //   const data = { ...values, role: "employee", isActive: true };
+        //   const res = await EMSApi.registerUser.create(data);
+        //   setSubmitting(false);
+        //   console.log("checkkk ", res);
+        //   if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {
+        //     triggerToast("success", _get(res, "data.message"));
+        //     setTimeout(() => {
+        //       navigate("/login");
+        //     }, 3000);
+        //   }
+        // } catch (err) {
+        //   console.error("err ", err);
+        //   setSubmitting(false);
+        // }
       }}
     >
       {({
@@ -132,7 +132,7 @@ const UserForm: React.FC = () => {
                 htmlfor="name"
                 id="name"
                 label='Name'
-                name="fullname"
+                name="name"
                 type="text"
                 required={true}
                 val={values.fullname}
@@ -255,21 +255,7 @@ const UserForm: React.FC = () => {
               />
             </div>
 
-            <div className="mb-4">
-              <Input
-                labelClass="block text-gray-700 text-sm font-bold mb-2"
-                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                htmlfor="profilePhoto"
-                id="profilePhoto"
-                name="profilePhoto"
-                label='Profile Picture'
-                type="file"
-                required={true}
-                // val={formData.experience} 
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-              />
-            </div>
+
 
             <div className="mb-4">
               <Input
@@ -287,14 +273,82 @@ const UserForm: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center justify-center">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                {isSubmitting ? <Loader classNames='' /> : "Register"}
-              </button>
+
+            <div className="mb-4">
+              <Input
+                labelClass="block text-gray-700 text-sm font-bold mb-2"
+                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                htmlfor="address"
+                id="address"
+                name="address"
+                label='Address'
+                type="text"
+                required={true}
+                val={values.address}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                labelClass="block text-gray-700 text-sm font-bold mb-2"
+                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                htmlfor="componyAddress"
+                id="componyAddress"
+                name="componyAddress"
+                label='Company Address'
+                type="text"
+                required={true}
+                val={values.companyAddress}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+              />
+            </div>
+
+            <div className="mb-4">
+              <Input
+                labelClass="block text-gray-700 text-sm font-bold mb-2"
+                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                htmlfor="roll"
+                id="roll"
+                name="Roll"
+                label='roll'
+                type="text"
+                required={true}
+                val={values.roll}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+              />
+            </div>
+
+
+            <div className="mb-4">
+              {/* <Input
+                labelClass="block text-gray-700 text-sm font-bold mb-2"
+                classname="shadow appearance-none border rounded text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                htmlfor="isActive"
+                id="isActive"
+                name="isActive"
+                label='Is Active'
+                type="checkbox"
+                val={true}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                required={true}
+              /> */}
+              <Checkbox
+                id="isActive"
+                name="isActive"
+                checked={values.isActive}
+                onChange={handleChange}
+                label="Is Active"
+              />
+            </div>
+
+
+            <div className="flex items-center justify-around">
+              <Button type='reset' variant='cancel' label='Cancel' onClick={onCancel} />
+              <Button isLoading={isSubmitting} type='submit' variant='submit' />
             </div>
             <Toast type={toastType} message={toastMessage} show={showToast} onClose={() => setShowToast(false)} />
           </form>
@@ -303,8 +357,6 @@ const UserForm: React.FC = () => {
       )}
     </Formik>
   )
-};
+}
 
-
-
-export default { path: "/registration-form", element: <RedirectIfAuthenticated element={<UserForm />} /> };
+export default { path: "/create-employee", element: <ProtectedRoute element={<EmployeeForm />} /> }
