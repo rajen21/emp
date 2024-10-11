@@ -15,15 +15,16 @@ import { useNavigate } from 'react-router-dom';
 export interface UserFormData {
   username: string;
   fullname: string;
-  password: string;
+  password?: string;
   company: string;
   dob: string;
   dept: string;
   phone: string;
   experience: string;
   email: string;
-  profilePhoto: File | null;
+  profilePhoto?: File | null;
   doj: string;
+  superAdminId?: string;
 }
 
 const UserForm: React.FC = () => {
@@ -84,7 +85,7 @@ const UserForm: React.FC = () => {
       onSubmit={async (values, { setSubmitting }) => {
         try {
           setSubmitting(true);
-          const data = { ...values, role: "employee", isActive: true };
+          const data = { ...values, role: "super_admin", isActive: true };
           const res = await EMSApi.registerUser.create(data);
           setSubmitting(false);
           console.log("checkkk ", res);

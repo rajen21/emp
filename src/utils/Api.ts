@@ -43,7 +43,7 @@ const logOut = `${apiDomain}/auth/logout`;
 const registerUser = `${apiDomain}/emp/register-user`;
 const getUser = `${apiDomain}/emp/get-user-details`;
 const workspace = `${apiDomain}/workspace/get-workspace`;
-const users = `${apiDomain}/emp/get-users`;
+const users = `${apiDomain}/emp`;
 
 const EMSApi = {
   auth: {
@@ -55,7 +55,8 @@ const EMSApi = {
   },
   user: {
     getUserDetails: () => axiosInstance.get(getUser).then(res=> res),
-    getUsers: (config: any) => axiosInstance.get(users, config).then(res=> res),
+    getUsers: (config: any) => axiosInstance.get(`${users}/get-users`, config).then(res=> res),
+    updateUser: (data:any, config:any) => axiosInstance.patch(`${users}/update-employee`,data,config),
   },
   workspace: {
     get: (config: any) => axiosInstance.get(workspace, config).then(res => res),

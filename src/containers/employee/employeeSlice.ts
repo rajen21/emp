@@ -18,6 +18,11 @@ export interface Empployee {
   dept: string;
   doj: string;
   isActive: boolean;
+  address:string;
+  company_address?: string;
+  workSpaceAdminId?: string;
+  superAdminId?: string;
+  password?: string;
 }
 
 
@@ -25,7 +30,12 @@ const initialState = {
   employeeList: {
     data: null,
     isLoading: false,
-    error: null
+    error: ""
+  },
+  workspaceAdmins: {
+    data: null,
+    isLoading: false,
+    error: ""
   }
 };
 
@@ -33,6 +43,16 @@ export const getUserList = createAsyncThunk("employee/getUserList", async () => 
   const query = {
     params: {
       role: "employee"
+    }
+  }
+  const res = await EMSApi.user.getUsers(query);
+  return _get(res, "data.data");
+});
+
+export const getWorkSpaceAdminList = createAsyncThunk("employee/getWorkSpaceAdminList", async () => {
+  const query = {
+    params: {
+      role: "workspace_admin"
     }
   }
   const res = await EMSApi.user.getUsers(query);
@@ -54,7 +74,18 @@ const employeeSlice = createSlice({
     });
     builder.addCase(getUserList.rejected, (state, action) => {
       state.employeeList.isLoading = false;
-      state.employeeList.error = action.payload as any;
+      state.employeeList.error = action.payload as string;
+    });
+    builder.addCase(getWorkSpaceAdminList.pending, (state) => {
+      state.workspaceAdmins.isLoading = true;
+    });
+    builder.addCase(getWorkSpaceAdminList.fulfilled, (state, action) => {
+      state.workspaceAdmins.isLoading = false;
+      state.workspaceAdmins.data = action.payload;
+    });
+    builder.addCase(getWorkSpaceAdminList.rejected, (state, action) => {
+      state.workspaceAdmins.isLoading = false;
+      state.workspaceAdmins.error = action.payload as string;
     })
   }
 });

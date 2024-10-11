@@ -1,6 +1,5 @@
 // import ErrorPage from "../../components/ErrorPage";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/Header";
 import ProtectedRoute from "../redirection/ProtectedRoute";
 import { fetchUser, homeState } from "./homeSlice";
 import { useEffect } from "react";
@@ -16,7 +15,6 @@ function Home() {
   
   return (
     <>
-    <Header />
     <div>Home</div>
     </>
   )

@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.employee-center *{
+  flex-basis: 25%;
+  text-align: center;
+}

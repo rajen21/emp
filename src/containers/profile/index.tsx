@@ -4,25 +4,27 @@ import { Formik, Form, Field } from 'formik';
 import { AppDispatch } from '../../store/store';
 import { fetchUser, homeState } from '../home/homeSlice';
 import ProtectedRoute from '../redirection/ProtectedRoute';
+import { Empployee } from '../employee/employeeSlice';
+import Checkbox from '../../components/Input/Checkbox';
 
-interface UserProfile {
-  id: string;
-  username: string;
-  email: string;
-  fullname: string;
-  password: string;
-  phone: string;
-  role: string;
-  experience: string;
-  profilePhoto: string;
-  company: string;
-  dob: string;
-  department: string;
-  companyAddress: string;
-  address: string;
-  doj: string;
-  isActive: boolean;
-}
+// interface UserProfile {
+//   id: string;
+//   username: string;
+//   email: string;
+//   fullname: string;
+//   password: string;
+//   phone: string;
+//   role: string;
+//   experience: string;
+//   profilePhoto: string;
+//   company: string;
+//   dob: string;
+//   department: string;
+//   companyAddress: string;
+//   address: string;
+//   doj: string;
+//   isActive: boolean;
+// }
 
 const UserProfileComponent: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -32,33 +34,32 @@ const UserProfileComponent: React.FC = () => {
     dispatch(fetchUser());
   }, [dispatch]);
 
-  const initialValues: UserProfile = {
-    id: '',
+  const initialValues: Empployee = {
+    _id: "",
     username: '',
     email: '',
     fullname: '',
     password: '',
     phone: '',
     role: '',
-    experience: '',
+    experience: 0,
     profilePhoto: '',
     company: '',
     dob: '',
-    department: '',
-    companyAddress: '',
+    dept: '',
+    company_address: '',
     address: '',
     doj: '',
     isActive: true,
   };
 
-  const handleSubmit = (values: UserProfile) => {
+  const handleSubmit = (values: Empployee) => {
     console.log('Form Data:', values);
     // Handle form submission (e.g., dispatch an update action)
   };
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching user details: {error}</p>;
-  console.log("aaa", data);
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
@@ -67,7 +68,7 @@ const UserProfileComponent: React.FC = () => {
         initialValues={data || initialValues}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting }) => (
+        {({ values, isSubmitting, handleChange }) => (
           <Form>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
@@ -120,6 +121,7 @@ const UserProfileComponent: React.FC = () => {
                 type="text"
                 name="role"
                 className="w-full border border-gray-300 rounded-md p-2"
+                disabled
               />
             </div>
 
@@ -195,11 +197,14 @@ const UserProfileComponent: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1" htmlFor="isActive">Is Active</label>
-              <Field as="select" name="isActive" className="w-full border border-gray-300 rounded-md p-2">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </Field>
+              <Checkbox
+                id="isActive"
+                name="isActive"
+                checked={values.isActive}
+                onChange={handleChange}
+                label="Is Active"
+                disabled={true}
+              />
             </div>
 
             <button

@@ -5,7 +5,7 @@ import RegisterUser from "../containers/auth/register/RegisterUser";
 import Profile from "../containers/profile";
 import Workspaces from "../containers/workspaces";
 import CreateWorkspace, { editWorkspace } from "../containers/workspaces/CreateWorkspace";
-import CreateEmployee from "../containers/employee/CreateEmployee";
+import CreateEmployee, { EditEmployee } from "../containers/employee/CreateEmployee";
 import EmpployeeList from "../containers/employee/EmpployeeList";
 
 
@@ -18,6 +18,7 @@ export default createBrowserRouter([
   CreateWorkspace,
   editWorkspace,
   CreateEmployee,
-  EmpployeeList
+  EmpployeeList,
+  EditEmployee
 ]);
 
