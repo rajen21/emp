@@ -68,7 +68,7 @@ const UserForm: React.FC = () => {
           today.getMonth(),
           today.getDate()
         );
-        let err:string = "";
+        let err: string = "";
         if (values.email.length && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
           err = 'Invalid email address';
         } else if (values.email.length && values.username.length < 3) {
@@ -79,11 +79,11 @@ const UserForm: React.FC = () => {
           err = 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*).';
         } else if (values.dob.length && userDOB > cutoffDate) {
           err = 'User must be at least 18 years old.';
-        } else if (values.phone.length&&!phoneRegex.test(_get(values, "phone"))) {
+        } else if (values.phone.length && !phoneRegex.test(_get(values, "phone"))) {
           err = 'Please enter a valid  phone number.';
         }
-        if (!_isEmpty(err)){
-          triggerToast("error",err);
+        if (!_isEmpty(err)) {
+          triggerToast("error", err);
         }
         return {};
       }}
@@ -131,6 +131,7 @@ const UserForm: React.FC = () => {
         handleBlur,
         handleSubmit,
         isSubmitting,
+        setFieldValue
       }) => (
         <div className="max-w-lg mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
 
@@ -281,18 +282,19 @@ const UserForm: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <Input
-                labelClass="block text-gray-700 text-sm font-bold mb-2"
-                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                htmlfor="profilePhoto"
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="profilePhoto">
+                Profile Photo
+              </label>
+              <input
                 id="profilePhoto"
-                name="profilePhoto"
-                label='Profile Picture'
                 type="file"
-                required={true}
-                // val={formData.experience} 
-                handleChange={handleChange}
-                handleBlur={handleBlur}
+                name="profilePhoto"
+                onChange={(event) => {
+                  if (event.target.files?.length) {
+                    setFieldValue('profilePhoto', event.target.files[0]);
+                  }
+                }}
+                className="block w-full text-gray-700 py-2 px-3 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
