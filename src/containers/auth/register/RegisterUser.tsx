@@ -12,7 +12,8 @@ import Loader from '../../../components/Loader';
 import Input from '../../../components/Input/CommonInput';
 import { useNavigate } from 'react-router-dom';
 
-export interface UserFormData {
+export interface UserFormData extends FormData {
+  _id?: string;
   username: string;
   fullname: string;
   password?: string;
@@ -24,6 +25,10 @@ export interface UserFormData {
   email: string;
   profilePhoto?: File | null;
   doj: string;
+  isActive?: boolean;
+  address?: string;
+  company_address?: string;
+  role?: "employee" | "workspace_admin" | "super_admin";
   superAdminId?: string;
 }
 
@@ -85,8 +90,22 @@ const UserForm: React.FC = () => {
       onSubmit={async (values, { setSubmitting }) => {
         try {
           setSubmitting(true);
-          const data = { ...values, role: "super_admin", isActive: true };
-          const res = await EMSApi.registerUser.create(data);
+          const formdata = new FormData();
+          formdata.append("username", values.username);
+          formdata.append("fullname", values.fullname);
+          formdata.append("password", values.password);
+          formdata.append("company", values.company);
+          formdata.append("dob", values.dob);
+          formdata.append("dept", values.dept);
+          formdata.append("phone", values.phone);
+          formdata.append("experience", values.experience);
+          formdata.append("doj", values.doj);
+          
+          if (values.profilePhoto) {
+            formdata.append("profilePhoto", values.profilePhoto);
+            // data.profilePhoto = values.profilePhoto
+          }
+          const res = await EMSApi.registerUser.create(formdata);
           setSubmitting(false);
           console.log("checkkk ", res);
           if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {

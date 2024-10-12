@@ -217,7 +217,7 @@ const GenericListGrid: React.FC<GenericListGridProps> = ({
         </div>
       )}
 
-      {isLoading && <Loader classNames="" />}
+      {isLoading && <Loader classNames="border-blue-500 h-20 w-20" />}
     </div>
   );
 };

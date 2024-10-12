@@ -1,7 +1,7 @@
 import axios, {  AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { UserFormData } from "../containers/auth/register/RegisterUser";
-import { LoginCredentials } from "./ApiTypes";
+import { UserFormData } from "../containers/employee/CreateEmployee";
+import { CustomConfig, LoginCredentials } from "./ApiTypes";
 
 const axiosInstance = axios.create({
   withCredentials: true
@@ -35,7 +35,8 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export const apiDomain = 'http://localhost:8000/api/v1';
+export const apiDomain = import.meta.env.VITE_APP_URL;
+
 export {axiosInstance};
 
 const loginURL = `${apiDomain}/auth/login`;
@@ -51,15 +52,15 @@ const EMSApi = {
     logOut: () => axiosInstance.get(logOut). then(res=> res),
   },
   registerUser: {
-    create: (data: UserFormData) => axiosInstance.post(registerUser, data).then(res => res),
+    create: (data: FormData | UserFormData) => axiosInstance.post(registerUser, data).then(res => res),
   },
   user: {
     getUserDetails: () => axiosInstance.get(getUser).then(res=> res),
-    getUsers: (config: any) => axiosInstance.get(`${users}/get-users`, config).then(res=> res),
-    updateUser: (data:any, config:any) => axiosInstance.patch(`${users}/update-employee`,data,config),
+    getUsers: (config: CustomConfig) => axiosInstance.get(`${users}/get-users`, config).then(res=> res),
+    updateUser: (data:any, config:CustomConfig) => axiosInstance.patch(`${users}/update-employee`,data,config),
   },
   workspace: {
-    get: (config: any) => axiosInstance.get(workspace, config).then(res => res),
+    get: (config: CustomConfig) => axiosInstance.get(workspace, config).then(res => res),
   },
 };
 

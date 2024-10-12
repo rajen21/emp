@@ -3,3 +3,7 @@ export interface LoginCredentials {
   email?: string;
   username?: string;
 }
+
+export interface CustomConfig {
+  params: object
+}

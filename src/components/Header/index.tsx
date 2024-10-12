@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+import { fetchUser, homeState } from '../../containers/home/homeSlice';
+import { AppDispatch } from '../../store/store';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -9,6 +12,8 @@ const Header: React.FC<HeaderProps> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dispatch: AppDispatch = useDispatch();
+  const loggedUser = useSelector(homeState);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -19,6 +24,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   };
 
   useEffect(() => {
+    dispatch(fetchUser());
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -39,8 +45,12 @@ const Header: React.FC<HeaderProps> = (props) => {
         </div>
         <nav className="hidden md:flex space-x-4">
           <NavLink to="/" className="hover:text-gray-400">Home</NavLink>
-          <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
-          <NavLink to="/employee-list" className="hover:text-gray-400">Employees</NavLink>
+          {!loggedUser.isLoading && loggedUser.data?.role !== "employee" && (
+            <>
+              <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
+              <NavLink to="/employee-list" className="hover:text-gray-400">Employees</NavLink>
+            </>
+          )}
           <div className="relative inline-block text-left" ref={dropdownRef}>
             <div>
               <button
@@ -85,8 +95,12 @@ const Header: React.FC<HeaderProps> = (props) => {
         <nav className="md:hidden bg-gray-700">
           <div className="px-4 py-2">
             <NavLink to="/" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Home</NavLink>
-            <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
-            <NavLink to="/employee-list" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
+            {!loggedUser.isLoading && loggedUser.data?.role !== "employee" && (
+              <>
+                <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
+                <NavLink to="/employee-list" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
+              </>
+            )}
           </div>
         </nav>
       )}

@@ -7,6 +7,7 @@ import Workspaces from "../containers/workspaces";
 import CreateWorkspace, { editWorkspace } from "../containers/workspaces/CreateWorkspace";
 import CreateEmployee, { EditEmployee } from "../containers/employee/CreateEmployee";
 import EmpployeeList from "../containers/employee/EmpployeeList";
+import ErrorPage from "../components/ErrorPage/index";
 
 
 export default createBrowserRouter([
@@ -19,6 +20,7 @@ export default createBrowserRouter([
   editWorkspace,
   CreateEmployee,
   EmpployeeList,
-  EditEmployee
+  EditEmployee,
+  ErrorPage
 ]);
 

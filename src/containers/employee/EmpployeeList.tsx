@@ -15,6 +15,10 @@ function EmpployeeList() {
   const loggedUser = useSelector(homeState);
   const navigate = useNavigate();
   console.log("checkkaaaaa:::", data);
+  if (!loggedUser.isLoading && loggedUser.data?.role === "employee") {
+    navigate("/not-found");
+    return;
+  }
 
   const navigateTo = (path: string) => {
     navigate(path);

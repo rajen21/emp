@@ -6,25 +6,8 @@ import { fetchUser, homeState } from '../home/homeSlice';
 import ProtectedRoute from '../redirection/ProtectedRoute';
 import { Empployee } from '../employee/employeeSlice';
 import Checkbox from '../../components/Input/Checkbox';
+import Loader from '../../components/Loader';
 
-// interface UserProfile {
-//   id: string;
-//   username: string;
-//   email: string;
-//   fullname: string;
-//   password: string;
-//   phone: string;
-//   role: string;
-//   experience: string;
-//   profilePhoto: string;
-//   company: string;
-//   dob: string;
-//   department: string;
-//   companyAddress: string;
-//   address: string;
-//   doj: string;
-//   isActive: boolean;
-// }
 
 const UserProfileComponent: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -58,12 +41,13 @@ const UserProfileComponent: React.FC = () => {
     // Handle form submission (e.g., dispatch an update action)
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error fetching user details: {error}</p>;
+  if (isLoading) return <Loader classNames='border-blue-500 h-20 w-20' />
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">User Profile</h2>
+      {data?.profilePhoto && 
+      <img src={data?.profilePhoto} width={200} height={200} alt='profile' /> }
       <Formik
         initialValues={data || initialValues}
         onSubmit={handleSubmit}

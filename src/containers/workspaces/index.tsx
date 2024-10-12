@@ -6,12 +6,18 @@ import { useEffect } from 'react';
 import _get from "lodash/get";
 import { AppDispatch } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
+import { homeState, fetchUser } from '../home/homeSlice';
 
 function Workspace() {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
+  const loggedUser = useSelector(homeState);
   const data = useSelector(workspaceState);
   console.log("data", data);
+  if (!loggedUser.isLoading && loggedUser.data?.role === "employee"){
+    navigate("/not-found");
+    return;
+  }
   const onClick = () => {
     navigate("/create-workspace");
   };
@@ -22,7 +28,8 @@ function Workspace() {
   }
   
   useEffect(() => {
-    dispatch(getWorkspaces({}));
+    dispatch(getWorkspaces({params: {}}));
+    dispatch(fetchUser());
   }, []);
 
   return (
