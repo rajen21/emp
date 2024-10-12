@@ -7,6 +7,7 @@ import _get from "lodash/get";
 import { AppDispatch } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
 import { homeState, fetchUser } from '../home/homeSlice';
+import Loader from '../../components/Loader';
 
 function Workspace() {
   const dispatch: AppDispatch = useDispatch();
@@ -31,6 +32,9 @@ function Workspace() {
     dispatch(getWorkspaces({params: {}}));
     dispatch(fetchUser());
   }, []);
+  if (_get(data, "workspaces.isLoading", false)) {
+    return <Loader classNames='border-blue-500 h-20 w-20' />
+  }
 
   return (
       <ListView items={_get(data, "workspaces.workspacedata")} buttonLable='Add Workspace' onClick={onClick} onListClick={onListClick} />

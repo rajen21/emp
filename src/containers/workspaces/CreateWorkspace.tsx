@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Formik, Field, Form } from 'formik';
 import ProtectedRoute from '../redirection/ProtectedRoute';
-import { apiDomain, axiosInstance } from '../../utils/Api';
+import EMSApi from '../../utils/Api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser, getWorkspaceAdmins, getWorkspaces, workspaceState } from './workspaceSliice';
 import { fetchUser as getLoggedUser, homeState } from "../home/homeSlice";
@@ -71,6 +71,10 @@ const CreateWorkspace = () => {
     dispatch(getLoggedUser());
   }, [dispatch]);
 
+  if (id && _get(workspaceStateData, "workspaces.isLoading", false)) {
+    return <Loader classNames='border-blue-500 w-20 h-20' />
+  }
+
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold text-center mb-6">Workspace Form</h1>
@@ -120,6 +124,7 @@ const CreateWorkspace = () => {
               formdata.append('email', values.email);
               formdata.append('phone', values.phone);
               formdata.append('address', values.address);
+              formdata.append("isActive", values.isActive.toString());
               if (loggedUser.data?.role === "workspace_admin") {
                 formdata.append('owner', loggedUser.data._id);
                 formdata.append("admin", loggedUser.data.superAdminId || "");
@@ -127,25 +132,33 @@ const CreateWorkspace = () => {
                 formdata.append('owner', values.owner);
                 formdata.append('admin', _get(workspaceStateData, "user.data._id") || "");
               }
-              console.log("checkk daya", values, formdata);
 
               if (values.logo) {
                 formdata.append('logo', values.logo);
               }
 
               try {
-
-                const res = await axiosInstance.post(`${apiDomain}/workspace/create-workspace`, formdata);
-                if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {
-                  navigate("/workspaces")
+                let res;
+                if (id) {
+                  const query = {
+                    params: {
+                      _id: id
+                    }
+                  }
+                  res = await EMSApi.workspace.update(formdata, query);
+                } else {
+                  res = await EMSApi.workspace.create(formdata);
                 }
-
+                if (_get(res, "data.success")) {
+                  navigate("/workspaces")
+                } else {
+                  triggerToast("error", _get(res, "data.message"));
+                }
               } catch (error) {
                 const err = error as Error;
                 console.error("error", error);
                 triggerToast('error', err.message)
               }
-              console.log(formdata);
               setSubmitting(false);
             }}
           >
@@ -219,15 +232,15 @@ const CreateWorkspace = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="isActive">
-                    Is Active?
-                  </label>
-                  <Field
-                    name="isActive"
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                  />
-                </div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="isActive">
+                  Is Active?
+                </label>
+                <Field
+                  name="isActive"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                />
+              </div>
 
                 <div className="flex items-center justify-around">
                   <Button type='reset' variant='cancel' label='Cancel' onClick={onCancel} />

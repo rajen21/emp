@@ -180,7 +180,7 @@ const GenericListGrid: React.FC<GenericListGridProps> = ({
           className="mt-4 bg-blue-600 text-white py-2 px-4 rounded"
           disabled={isFetching || isLoading}
         >
-          {isFetching ? "Loading..." : "Load More"}
+          {isFetching ? <Loader /> : "Load More"}
         </button>
       )}
 
@@ -213,6 +213,7 @@ const GenericListGrid: React.FC<GenericListGridProps> = ({
                     ))
                   : [];
               })}
+              {isFetching && <Loader classNames="border-blue-500 h-20 w-20" />}
           </div>
         </div>
       )}

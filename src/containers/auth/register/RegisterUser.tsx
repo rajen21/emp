@@ -100,6 +100,9 @@ const UserForm: React.FC = () => {
           formdata.append("phone", values.phone);
           formdata.append("experience", values.experience);
           formdata.append("doj", values.doj);
+          formdata.append("email", values.email);
+          formdata.append("isActive", 'true');
+          formdata.append("role", "super_admin");
           
           if (values.profilePhoto) {
             formdata.append("profilePhoto", values.profilePhoto);
@@ -108,11 +111,13 @@ const UserForm: React.FC = () => {
           const res = await EMSApi.registerUser.create(formdata);
           setSubmitting(false);
           console.log("checkkk ", res);
-          if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {
+          if (_get(res, "data.success")) {
             triggerToast("success", _get(res, "data.message"));
             setTimeout(() => {
               navigate("/login");
             }, 3000);
+          } else {
+            triggerToast("error", _get(res, "data.message"))
           }
         } catch (err) {
           console.error("err ", err);
@@ -313,7 +318,7 @@ const UserForm: React.FC = () => {
                 disabled={isSubmitting}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
-                {isSubmitting ? <Loader classNames='' /> : "Register"}
+                {isSubmitting ? <Loader /> : "Register"}
               </button>
             </div>
             <Toast type={toastType} message={toastMessage} show={showToast} onClose={() => setShowToast(false)} />

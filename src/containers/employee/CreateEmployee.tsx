@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 
 import _isEmpty from "lodash/isEmpty";
 import _get from "lodash/get";
@@ -9,9 +9,7 @@ import _map from "lodash/map";
 import Toast from "../../components/Toast";
 import EMSApi from "../../utils/Api";
 import Loader from "../../components/Loader";
-import Input from "../../components/Input/CommonInput";
 import { useNavigate, useParams } from "react-router-dom";
-import Checkbox from "../../components/Input/Checkbox";
 import Button from "../../components/button";
 import ProtectedRoute from "../redirection/ProtectedRoute";
 import { useDispatch, useSelector } from "react-redux";
@@ -96,14 +94,16 @@ function EmployeeForm() {
     }
   }, []);
 
-  if (id && _get(userData, "employeeList.isLoading", false)) {
+  if (id && _get(userData, "userData.isLoading", false)) {
     return <Loader classNames="border-blue-500 h-20 w-20" />;
   }
 
   return (
     <div className="">
       {/* <img className="flex" src={_get(userData, "userData.data.employees[0].profilePhoto")} width={200} height={200} alt="Profile" /> */}
-      <ProfilePhoto imageUrl={_get(userData, "userData.data.employees[0].profilePhoto")} />
+      {
+        (id && _get(userData, "userData.data.employees[0].profilePhoto")) ? <ProfilePhoto imageUrl={_get(userData, "userData.data.employees[0].profilePhoto")} /> : null
+      }
       <Formik
         initialValues={{
           username: id ? _get(userData, "userData.data.employees[0].username", "") : "",
@@ -167,7 +167,7 @@ function EmployeeForm() {
           if (!_isEmpty(err)) {
             triggerToast("error", err);
           }
-          return {};
+          return;
         }}
         onSubmit={async (values, { setSubmitting }) => {
           try {
@@ -176,7 +176,6 @@ function EmployeeForm() {
             formdata.append('username', values.username);
             formdata.append('email', values.email);
             formdata.append('fullname', values.fullname);
-            formdata.append('role', values.role);
             formdata.append('experience', values.experience);
             formdata.append('isActive', values.isActive.toString());
             formdata.append('profilePhoto', values.profilePhoto);
@@ -187,14 +186,17 @@ function EmployeeForm() {
             formdata.append('phone', values.phone);
             formdata.append('doj', values.doj);
             formdata.append('company_address', values.company_address);
-
+            
             if (loggedUser.data?.role === "super_admin") {
-              formdata.append('superAdminId', loggedUser.data._id)
-            }
-            if (loggedUser.data?.role === "workspace_admin") {
-              formdata.append('workSpaceAdminId', loggedUser.data._id)
+              formdata.append('role', values.role);
+              formdata.append('superAdminId', loggedUser.data._id);
+              formdata.append('workSpaceAdminId', values.workSpaceAdminId);
+            } else if (loggedUser.data?.role === "workspace_admin") {
+              formdata.append('workSpaceAdminId', loggedUser.data._id);
               formdata.append('superAdminId', loggedUser.data.superAdminId ?? "")
-              formdata.append('role', 'employee')
+              formdata.append('role', 'employee');
+            } else {
+              formdata.append('role', 'employee');
             }
 
             if (values.password) {
@@ -230,149 +232,105 @@ function EmployeeForm() {
           }
         }}
       >
-        {({ values, handleChange, handleBlur, handleSubmit, isSubmitting, setFieldValue }) => (
+        {({ values, isSubmitting, setFieldValue }) => (
           <div className="max-w-lg mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
-            <form onSubmit={handleSubmit}>
+            <Form>
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="username"
-                  id="username"
-                  label="Username"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                  User Name
+                </label>
+                <Field
                   name="username"
                   type="text"
-                  required={!id}
-                  val={values.username}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="fullname"
-                  id="fullname"
-                  label="Name"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullname">
+                  Name
+                </label>
+                <Field
                   name="fullname"
                   type="text"
-                  required={!id}
-                  val={values.fullname}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="email"
-                  id="email"
-                  label="Email"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                  Email
+                </label>
+                <Field
                   name="email"
-                  type="email"
-                  required={!id}
-                  val={values.email}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  type="text"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="password"
-                  id="password"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                  Password
+                </label>
+                <Field
                   name="password"
-                  label="Password"
                   type="password"
-                  required={!id}
-                  val={values.password}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="company"
-                  id="company"
-                  label="Company"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="company">
+                  Company
+                </label>
+                <Field
                   name="company"
                   type="text"
-                  required={!id}
-                  val={values.company}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="dob"
-                  id="dob"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="dob">
+                  DOB
+                </label>
+                <Field
                   name="dob"
-                  label="Date of Birth"
                   type="date"
-                  required={!id}
-                  val={values.dob}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="dept"
-                  id="dept"
+
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="dept">
+                  Department
+                </label>
+                <Field
                   name="dept"
-                  label="Department"
                   type="text"
-                  required={!id}
-                  val={values.dept}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="phone"
-                  id="phone"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phone">
+                  Phone
+                </label>
+                <Field
                   name="phone"
-                  label="Phone"
                   type="text"
-                  required={!id}
-                  val={values.phone}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="experience"
-                  id="experience"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="experience">
+                  Experience
+                </label>
+                <Field
                   name="experience"
-                  label="Experience"
                   type="text"
-                  required={!id}
-                  val={values.experience}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
@@ -394,49 +352,34 @@ function EmployeeForm() {
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="doj"
-                  id="doj"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="doj">
+                  DOJ
+                </label>
+                <Field
                   name="doj"
-                  label="Joining Date"
                   type="date"
-                  required={!id}
-                  val={values.doj}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
 
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="address"
-                  id="address"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
+                  Address
+                </label>
+                <Field
                   name="address"
-                  label="Address"
                   type="text"
-                  required={!id}
-                  val={values.address}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-4">
-                <Input
-                  labelClass="block text-gray-700 text-sm font-bold mb-2"
-                  classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  htmlfor="company_address"
-                  id="company_address"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="company_address">
+                  Company Address
+                </label>
+                <Field
                   name="company_address"
-                  label="Company Address"
                   type="text"
-                  required={!id}
-                  val={values.company_address}
-                  handleChange={handleChange}
-                  handleBlur={handleBlur}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               {loggedUser.data?.role === "super_admin" && (
@@ -458,12 +401,13 @@ function EmployeeForm() {
               ) : null}
 
               <div className="mb-4">
-                <Checkbox
-                  id="isActive"
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="isActive">
+                  Is Active?
+                </label>
+                <Field
                   name="isActive"
-                  checked={values.isActive}
-                  onChange={handleChange}
-                  label="Is Active"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                 />
               </div>
 
@@ -482,7 +426,7 @@ function EmployeeForm() {
                 show={showToast}
                 onClose={() => setShowToast(false)}
               />
-            </form>
+            </Form>
           </div>
         )}
       </Formik>

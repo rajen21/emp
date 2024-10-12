@@ -6,6 +6,7 @@ import { AppDispatch } from '../../store/store';
 
 interface HeaderProps {
   onLogout: () => void;
+  downloadCSV: () => void;
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
@@ -69,7 +70,9 @@ const Header: React.FC<HeaderProps> = (props) => {
               <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                 <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</NavLink>
-                  <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={props.onLogout}>Logout</div>
+                  {loggedUser.data?.role === "super_admin" && 
+                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer' onClick={props.downloadCSV}>Download Employee CSV</div>}
+                  <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" onClick={props.onLogout}>Logout</div>
                   {/* <NavLink to="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</NavLink> */}
                 </div>
               </div>

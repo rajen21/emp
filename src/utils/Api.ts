@@ -24,8 +24,11 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
+    const token = {authToken: response.headers["authorization"]}
     
-    localStorage.setItem("emp-token", JSON.stringify({authToken: response.headers["authorization"]}));
+    if (token.authToken) {
+      localStorage.setItem("emp-token", JSON.stringify(token));
+    }
     return response;
   },
   (error) => {
@@ -43,7 +46,7 @@ const loginURL = `${apiDomain}/auth/login`;
 const logOut = `${apiDomain}/auth/logout`;
 const registerUser = `${apiDomain}/emp/register-user`;
 const getUser = `${apiDomain}/emp/get-user-details`;
-const workspace = `${apiDomain}/workspace/get-workspace`;
+const workspace = `${apiDomain}/workspace`;
 const users = `${apiDomain}/emp`;
 
 const EMSApi = {
@@ -60,7 +63,9 @@ const EMSApi = {
     updateUser: (data:any, config:CustomConfig) => axiosInstance.patch(`${users}/update-employee`,data,config),
   },
   workspace: {
-    get: (config: CustomConfig) => axiosInstance.get(workspace, config).then(res => res),
+    get: (config: CustomConfig) => axiosInstance.get(`${workspace}/get-workspace`, config).then(res => res),
+    create: (data:any) => axiosInstance.post(`${workspace}/create-workspace`, data),
+    update: (data:any, config:CustomConfig) => axiosInstance.patch(`${workspace}/update-workspace`,data, config),
   },
 };
 

@@ -5,6 +5,7 @@
 ## Add .env file and add following variables
 
 **`VITE_APP_URL=backend api url`**
+**`VITE_ALLOW_ACCESS=frontend root url`**
 
 ## And then run the following commands
 
