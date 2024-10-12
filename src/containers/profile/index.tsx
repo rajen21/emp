@@ -19,7 +19,7 @@ const UserProfileComponent: React.FC = () => {
   const [toastType, setToastType] = useState<"success" | "info" | "error">("success");
   const [toastMessage, setToastMessage] = useState("");
   const dispatch: AppDispatch = useDispatch();
-  const { data, error, isLoading } = useSelector(homeState);
+  const { data, isLoading } = useSelector(homeState);
 
   useEffect(() => {
     dispatch(fetchUser());
