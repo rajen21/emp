@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import _get from "lodash/get";
 import EMSApi from '../../utils/Api';
 import { RootState } from '../../store/store';
+import { CustomConfig } from '../../utils/ApiTypes';
 
 interface UserState {
   isLoading: boolean;
@@ -71,7 +72,7 @@ export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: stri
 });
 
 export const getWorkspaces = createAsyncThunk<Workspaces[], object, { rejectValue: string }>("home/getWorkspaces", async (query) => {
-  const res = await EMSApi.workspace.get(query);
+  const res = await EMSApi.workspace.get(query as CustomConfig);
   return _get(res,"data.data") as Workspaces[];
 });
 

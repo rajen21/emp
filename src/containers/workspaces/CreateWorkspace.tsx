@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Formik, Field, Form } from 'formik';
 import ProtectedRoute from '../redirection/ProtectedRoute';
-import { apiDomain, axiosInstance } from '../../utils/Api';
+import EMSApi from '../../utils/Api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser, getWorkspaceAdmins, getWorkspaces, workspaceState } from './workspaceSliice';
+import { fetchUser as getLoggedUser, homeState } from "../home/homeSlice";
 import { AppDispatch } from '../../store/store';
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
@@ -13,6 +14,7 @@ import Toast from '../../components/Toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
 import Button from '../../components/button';
+import ProfilePhoto from '../../components/profile';
 
 interface User {
   _id: string;
@@ -38,9 +40,13 @@ const CreateWorkspace = () => {
   const [toastMessage, setToastMessage] = useState('');
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
-  const { id } = useParams();
+  const loggedUser = useSelector(homeState);
   const workspaceStateData = useSelector(workspaceState);
-  
+  const { id } = useParams();
+  if (!loggedUser.isLoading && loggedUser.data?.role === "employee") {
+    navigate("/not-found");
+  }
+
   const OPTIONS = _map(_get(workspaceStateData, "workspaceAdmins.data", []), (data: User) => ({ val: data?._id, label: data.fullname }))
 
   const triggerToast = (type: 'success' | 'info' | 'error', message: string) => {
@@ -62,23 +68,31 @@ const CreateWorkspace = () => {
     dispatch(getWorkspaces(query));
     dispatch(getWorkspaceAdmins());
     dispatch(fetchUser());
+    dispatch(getLoggedUser());
   }, [dispatch]);
+
+  if (id && _get(workspaceStateData, "workspaces.isLoading", false)) {
+    return <Loader classNames='border-blue-500 w-20 h-20' />
+  }
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold text-center mb-6">Workspace Form</h1>
       {!_get(workspaceStateData, "workspaces.isLoading") ? (
         <>
+          {id && _get(workspaceStateData, "workspaces.workspacedata[0].logo") && (
+            <ProfilePhoto imageUrl={_get(workspaceStateData, "workspaces.workspacedata[0].logo")} />
+          )}
           <Formik
             initialValues={{
               // name: _get(workspaceStateData, "workspaces.workspacedata[0].name", ""),
               name: id ? _get(workspaceStateData, "workspaces.workspacedata[0].name", "") : "",
               email: id ? _get(workspaceStateData, "workspaces.workspacedata[0].email", "") : "",
-              phone: id ? _get(workspaceStateData, "workspaces.workspacedata[0].phone", "") :"",
-              address: id? _get(workspaceStateData, "workspaces.workspacedata[0].address", "") : "",
+              phone: id ? _get(workspaceStateData, "workspaces.workspacedata[0].phone", "") : "",
+              address: id ? _get(workspaceStateData, "workspaces.workspacedata[0].address", "") : "",
               logo: null,
-              owner: id? _get(workspaceStateData, "workspaces.workspacedata[0].owner", ""):"",
-              isActive: id?_get(workspaceStateData, "workspaces.workspacedata[0].isActive", false):false,
+              owner: id ? _get(workspaceStateData, "workspaces.workspacedata[0].owner", "") : "",
+              isActive: id ? _get(workspaceStateData, "workspaces.workspacedata[0].isActive", false) : false,
             }}
             validate={values => {
               let error: string = "";
@@ -88,11 +102,11 @@ const CreateWorkspace = () => {
                 error = 'Name must be at least 2 characters long';
               } else if (!values.email) {
                 error = 'Email is required';
-              } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+              } else if (values.email.length && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
                 error = 'Email is invalid';
               } else if (!values.phone) {
                 error = 'Phone number is required';
-              } else if (!/^[+]?[91]?[6789]\d{9}$/.test(values.phone)) {
+              } else if (values.phone.length && !/^[+]?[91]?[6789]\d{9}$/.test(values.phone)) {
                 error = 'Enter valid phone number.';
               } else if (!values.address) {
                 error = 'Address is required';
@@ -102,7 +116,7 @@ const CreateWorkspace = () => {
               if (!_isEmpty(error)) {
                 triggerToast("error", error);
               }
-              return ;
+              return;
             }}
             onSubmit={async (values, { setSubmitting }) => {
               const formdata = new FormData();
@@ -110,25 +124,41 @@ const CreateWorkspace = () => {
               formdata.append('email', values.email);
               formdata.append('phone', values.phone);
               formdata.append('address', values.address);
-              formdata.append('owner', values.owner);
-              formdata.append('admin', _get(workspaceStateData, "user.data._id") || "");
-              console.log("checkk daya", values, formdata);
+              formdata.append("isActive", values.isActive.toString());
+              if (loggedUser.data?.role === "workspace_admin") {
+                formdata.append('owner', loggedUser.data._id);
+                formdata.append("admin", loggedUser.data.superAdminId || "");
+              } else {
+                formdata.append('owner', values.owner);
+                formdata.append('admin', _get(workspaceStateData, "user.data._id") || "");
+              }
 
               if (values.logo) {
                 formdata.append('logo', values.logo);
               }
 
               try {
-
-                const res = await axiosInstance.post(`${apiDomain}/workspace/create-workspace`, formdata);
-                console.log("dddd", res);
-
+                let res;
+                if (id) {
+                  const query = {
+                    params: {
+                      _id: id
+                    }
+                  }
+                  res = await EMSApi.workspace.update(formdata, query);
+                } else {
+                  res = await EMSApi.workspace.create(formdata);
+                }
+                if (_get(res, "data.success")) {
+                  navigate("/workspaces")
+                } else {
+                  triggerToast("error", _get(res, "data.message"));
+                }
               } catch (error) {
                 const err = error as Error;
                 console.error("error", error);
                 triggerToast('error', err.message)
               }
-              console.log(formdata);
               setSubmitting(false);
             }}
           >
@@ -177,10 +207,13 @@ const CreateWorkspace = () => {
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   />
                 </div>
-
-                <div className="mb-4">
-                  <Dropdown label='Workspace Admin' name='owner' options={OPTIONS} />
-                </div>
+                {
+                  !loggedUser.isLoading && loggedUser.data?.role === "super_admin" && (
+                    <div className="mb-4">
+                      <Dropdown label='Workspace Admin' name='owner' options={OPTIONS} />
+                    </div>
+                  )
+                }
 
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="logo">
@@ -199,15 +232,15 @@ const CreateWorkspace = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="isActive">
-                    Is Active?
-                  </label>
-                  <Field
-                    name="isActive"
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                  />
-                </div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="isActive">
+                  Is Active?
+                </label>
+                <Field
+                  name="isActive"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                />
+              </div>
 
                 <div className="flex items-center justify-around">
                   <Button type='reset' variant='cancel' label='Cancel' onClick={onCancel} />

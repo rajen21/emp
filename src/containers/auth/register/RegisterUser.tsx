@@ -12,18 +12,24 @@ import Loader from '../../../components/Loader';
 import Input from '../../../components/Input/CommonInput';
 import { useNavigate } from 'react-router-dom';
 
-export interface UserFormData {
+export interface UserFormData extends FormData {
+  _id?: string;
   username: string;
   fullname: string;
-  password: string;
+  password?: string;
   company: string;
   dob: string;
   dept: string;
   phone: string;
   experience: string;
   email: string;
-  profilePhoto: File | null;
+  profilePhoto?: File | null;
   doj: string;
+  isActive?: boolean;
+  address?: string;
+  company_address?: string;
+  role?: "employee" | "workspace_admin" | "super_admin";
+  superAdminId?: string;
 }
 
 const UserForm: React.FC = () => {
@@ -62,7 +68,7 @@ const UserForm: React.FC = () => {
           today.getMonth(),
           today.getDate()
         );
-        let err:string = "";
+        let err: string = "";
         if (values.email.length && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
           err = 'Invalid email address';
         } else if (values.email.length && values.username.length < 3) {
@@ -73,26 +79,45 @@ const UserForm: React.FC = () => {
           err = 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*).';
         } else if (values.dob.length && userDOB > cutoffDate) {
           err = 'User must be at least 18 years old.';
-        } else if (values.phone.length&&!phoneRegex.test(_get(values, "phone"))) {
+        } else if (values.phone.length && !phoneRegex.test(_get(values, "phone"))) {
           err = 'Please enter a valid  phone number.';
         }
-        if (!_isEmpty(err)){
-          triggerToast("error",err);
+        if (!_isEmpty(err)) {
+          triggerToast("error", err);
         }
         return {};
       }}
       onSubmit={async (values, { setSubmitting }) => {
         try {
           setSubmitting(true);
-          const data = { ...values, role: "employee", isActive: true };
-          const res = await EMSApi.registerUser.create(data);
+          const formdata = new FormData();
+          formdata.append("username", values.username);
+          formdata.append("fullname", values.fullname);
+          formdata.append("password", values.password);
+          formdata.append("company", values.company);
+          formdata.append("dob", values.dob);
+          formdata.append("dept", values.dept);
+          formdata.append("phone", values.phone);
+          formdata.append("experience", values.experience);
+          formdata.append("doj", values.doj);
+          formdata.append("email", values.email);
+          formdata.append("isActive", 'true');
+          formdata.append("role", "super_admin");
+          
+          if (values.profilePhoto) {
+            formdata.append("profilePhoto", values.profilePhoto);
+            // data.profilePhoto = values.profilePhoto
+          }
+          const res = await EMSApi.registerUser.create(formdata);
           setSubmitting(false);
           console.log("checkkk ", res);
-          if (_get(res, "data.statusCode") === 201 && _get(res, "data.success")) {
+          if (_get(res, "data.success")) {
             triggerToast("success", _get(res, "data.message"));
             setTimeout(() => {
               navigate("/login");
             }, 3000);
+          } else {
+            triggerToast("error", _get(res, "data.message"))
           }
         } catch (err) {
           console.error("err ", err);
@@ -106,6 +131,7 @@ const UserForm: React.FC = () => {
         handleBlur,
         handleSubmit,
         isSubmitting,
+        setFieldValue
       }) => (
         <div className="max-w-lg mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
 
@@ -256,18 +282,19 @@ const UserForm: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <Input
-                labelClass="block text-gray-700 text-sm font-bold mb-2"
-                classname="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                htmlfor="profilePhoto"
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="profilePhoto">
+                Profile Photo
+              </label>
+              <input
                 id="profilePhoto"
-                name="profilePhoto"
-                label='Profile Picture'
                 type="file"
-                required={true}
-                // val={formData.experience} 
-                handleChange={handleChange}
-                handleBlur={handleBlur}
+                name="profilePhoto"
+                onChange={(event) => {
+                  if (event.target.files?.length) {
+                    setFieldValue('profilePhoto', event.target.files[0]);
+                  }
+                }}
+                className="block w-full text-gray-700 py-2 px-3 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
@@ -293,7 +320,7 @@ const UserForm: React.FC = () => {
                 disabled={isSubmitting}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
-                {isSubmitting ? <Loader classNames='' /> : "Register"}
+                {isSubmitting ? <Loader /> : "Register"}
               </button>
             </div>
             <Toast type={toastType} message={toastMessage} show={showToast} onClose={() => setShowToast(false)} />

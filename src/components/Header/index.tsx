@@ -1,10 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+import { fetchUser, homeState } from '../../containers/home/homeSlice';
+import { AppDispatch } from '../../store/store';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onLogout: () => void;
+  downloadCSV: () => void;
+}
+
+const Header: React.FC<HeaderProps> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dispatch: AppDispatch = useDispatch();
+  const loggedUser = useSelector(homeState);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -15,6 +25,7 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
+    dispatch(fetchUser());
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -35,8 +46,12 @@ const Header: React.FC = () => {
         </div>
         <nav className="hidden md:flex space-x-4">
           <NavLink to="/" className="hover:text-gray-400">Home</NavLink>
-          <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
-          <NavLink to="/employee-list" className="hover:text-gray-400">Employees</NavLink>
+          {!loggedUser.isLoading && loggedUser.data?.role !== "employee" && (
+            <>
+              <NavLink to="/workspaces" className="hover:text-gray-400">Workspaces</NavLink>
+              <NavLink to="/employee-list" className="hover:text-gray-400">Employees</NavLink>
+            </>
+          )}
           <div className="relative inline-block text-left" ref={dropdownRef}>
             <div>
               <button
@@ -55,7 +70,10 @@ const Header: React.FC = () => {
               <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                 <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</NavLink>
-                  <NavLink to="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</NavLink>
+                  {loggedUser.data?.role === "super_admin" && 
+                  <div className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer' onClick={props.downloadCSV}>Download Employee CSV</div>}
+                  <div className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" onClick={props.onLogout}>Logout</div>
+                  {/* <NavLink to="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</NavLink> */}
                 </div>
               </div>
             )}
@@ -80,8 +98,12 @@ const Header: React.FC = () => {
         <nav className="md:hidden bg-gray-700">
           <div className="px-4 py-2">
             <NavLink to="/" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Home</NavLink>
-            <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
-            <NavLink to="/employee-list" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
+            {!loggedUser.isLoading && loggedUser.data?.role !== "employee" && (
+              <>
+                <NavLink to="/workspaces" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Workspaces</NavLink>
+                <NavLink to="/employee-list" className="block text-gray-300 hover:bg-gray-600 hover:text-white px-2 py-1 rounded">Employees</NavLink>
+              </>
+            )}
           </div>
         </nav>
       )}

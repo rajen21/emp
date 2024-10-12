@@ -3,19 +3,12 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import _get from "lodash/get";
 import EMSApi from '../../utils/Api';
 import { RootState } from '../../store/store';
+import { Empployee } from '../employee/employeeSlice';
 
 interface UserState {
   isLoading: boolean;
-  data: null | any; 
+  data: null | Empployee; 
   error: null | string;
-}
-
-interface UserDetails {
-  id: string;
-  username: string;
-  email: string;
-  fullname: string;
-  // Add other user properties as necessary
 }
 
 const initialState = {
@@ -26,9 +19,9 @@ const initialState = {
   } as UserState
 };
 
-export const fetchUser = createAsyncThunk<UserDetails, void, { rejectValue: string }>("home/fetchUser", async () => {
+export const fetchUser = createAsyncThunk<Empployee, void, { rejectValue: string }>("home/fetchUser", async () => {
   const res = await EMSApi.user.getUserDetails();
-  return _get(res, "data.data") as any;
+  return _get(res, "data.data");
 })
 
 const itemsSlice = createSlice({

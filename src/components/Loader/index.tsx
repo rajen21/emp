@@ -1,13 +1,13 @@
 import React from 'react';
 
 interface LoaderProps {
-  classNames: string;
+  classNames?: string;
 }
 
-const Loader: React.FC<LoaderProps> = (props) => {
+const Loader: React.FC<LoaderProps> = ({classNames="border-white h-5 w-5"}) => {
   return (
     <div className="flex items-center justify-center">
-      <div className={`animate-spin rounded-full h-5 w-5 border-b-2 border-white ${props.classNames}`}></div>
+      <div className={`animate-spin rounded-full  border-b-2  ${classNames}`}></div>
     </div>
   );
 };

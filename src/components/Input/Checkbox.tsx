@@ -3,11 +3,12 @@ import React from 'react';
 interface CheckboxProps {
   id: string;
   name: string;
-  checked: boolean; // State of the checkbox
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // Change handler
-  label: string; // Label for the checkbox
-  required?: boolean; // Optional required flag
-  className?: string; // Optional className for additional styling
+  checked: boolean; 
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
+  label: string; 
+  required?: boolean;
+  className?: string; 
+  disabled?: boolean;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -18,6 +19,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   label,
   required = false,
   className = '',
+  disabled=false,
 }) => {
   return (
     <div className={`flex items-center ${className}`}>
@@ -29,6 +31,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         onChange={onChange}
         required={required}
         className="h-4 w-4 text-blue-600 transition duration-150 ease-in-out rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={disabled}
       />
       <label htmlFor={id} className="ml-2 text-gray-700">
         {label}
