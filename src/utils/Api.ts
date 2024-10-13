@@ -28,11 +28,12 @@ axiosInstance.interceptors.response.use(
     
     if (token.authToken) {
       localStorage.setItem("emp-token", JSON.stringify(token));
+    } else {
+      localStorage.removeItem("emp-token");
     }
     return response;
   },
   (error) => {
-    // Handle errors
     console.error('Response Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
