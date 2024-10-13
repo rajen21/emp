@@ -166,8 +166,9 @@ function EmployeeForm() {
           }
           if (!_isEmpty(err)) {
             triggerToast("error", err);
+            return {err};
           }
-          return {err};
+          return;
         }}
         onSubmit={async (values, { setSubmitting }) => {
           try {

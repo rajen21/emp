@@ -115,8 +115,9 @@ const CreateWorkspace = () => {
               }
               if (!_isEmpty(error)) {
                 triggerToast("error", error);
+                return {error};
               }
-              return {error};
+              return;
             }}
             onSubmit={async (values, { setSubmitting }) => {
               const formdata = new FormData();
