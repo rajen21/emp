@@ -25,7 +25,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     const token = {authToken: response.headers["authorization"]}
-    console.log("check auttoke", token, response);
+    console.log("check auttoke", token, response.headers["authorization"], response.headers["Authorization"]);
     
     if (token.authToken) {
       localStorage.setItem("emp-token", JSON.stringify(token));
